@@ -1,0 +1,22 @@
+// Objective:- To demonstrate process creation and management using  the fork() system call and getpid()//information related sysytem call to display process IDs in a UNIX-like operating system.
+
+#include <stdio.h>
+#include <unistd.h>  // fork  system kae liyeh to create a new process 
+#include <sys/types.h>   //pid_t
+int main(){
+    pid_t pid;
+    fork();          // 2 process banarah hae 
+    printf("i am aarchi\n");
+    pid = getpid();
+    printf("system id is %d\n" ,pid);
+     return 0;
+}
+
+
+
+//
+output 
+  i am aarchi 
+ process id print hoghi 
+  i am aarchi 
+ process id print hoghi 
