@@ -1,19 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int fsize, ssize, frame[10], arrive[30], rstring[30];
+int fsize, ssize, frame[10], rstring[30];
+int recent[10];  // To track recency of page accesses
 
 int pagefound(int x);
 void display();
-int leastused();
-int pagelocation(int x);
+int findLRU();  // Function to find the least recently used page
 
 int main() {
-    int i, lfi, idx, cs = 0, ls = 0, pf = 0, j = 0, y, k, z = 0, time = 0;
+    int i, pf = 0, time = 0;
 
     printf("\n\n\t\t LRU PAGE REPLACEMENT");
-    printf("\n\t\t --------------------");
+    printf("\n\t\t ---------------------");
 
+    // Input frame size
     printf("\n\n\t Enter the frame size: ");
     scanf("%d", &fsize);
 
@@ -22,6 +23,7 @@ int main() {
         return 1;
     }
 
+    // Input reference string size
     printf("\n\t Enter the reference string size: ");
     scanf("%d", &ssize);
 
@@ -30,32 +32,45 @@ int main() {
         return 1;
     }
 
+    // Input reference string
     printf("\n\t Enter the reference string: ");
     for (i = 0; i < ssize; i++)
         scanf("%d", &rstring[i]);
 
-    for (k = 0; k < fsize; k++) {
-        frame[k] = -3;  // Initialize frames with -3 to indicate empty slots
-        arrive[k] = 0;
+    // Initialize frames with -1 to indicate empty slots
+    for (i = 0; i < fsize; i++) {
+        frame[i] = -1;
+        recent[i] = 0;  // Initialize recency trackers to 0
     }
 
+    // Process each page in the reference string
     for (i = 0; i < ssize; i++) {
-        y = pagefound(rstring[i]);
-        if (y == 0) {
-            pf++;
-            if (cs >= fsize) {
-                lfi = leastused();
-                frame[lfi] = rstring[i];
-                arrive[lfi] = ++time;
-            } else {
-                frame[cs] = rstring[i];
-                arrive[cs] = ++time;
+        // Check if the page is already in the frame
+        if (!pagefound(rstring[i])) {
+            pf++;  // Page fault
+            int replaceIndex;
+
+            // If there is a free frame slot, use it
+            int foundEmpty = 0;
+            for (int j = 0; j < fsize; j++) {
+                if (frame[j] == -1) {
+                    replaceIndex = j;
+                    foundEmpty = 1;
+                    break;
+                }
             }
-        } else {
-            idx = pagelocation(rstring[i]);
-            arrive[idx] = ++time;
+
+            // If no empty frame is found, use the LRU replacement strategy
+            if (!foundEmpty) {
+                replaceIndex = findLRU();
+            }
+
+            // Replace the frame with the new page
+            frame[replaceIndex] = rstring[i];
+            recent[replaceIndex] = ++time;  // Update the recency counter
         }
-        cs++;
+
+        // Display the current state of the frames
         display();
     }
 
@@ -63,22 +78,22 @@ int main() {
     return 0;
 }
 
+// Function to check if a page is already in a frame
 int pagefound(int x) {
-    int i, val = 0;
-    for (i = 0; i < fsize; i++) {
-        if (x == frame[i]) {
-            val = 1;
-            break;
+    for (int i = 0; i < fsize; i++) {
+        if (frame[i] == x) {
+            recent[i] = ++recent[0];  // Update recency on page hit
+            return 1;
         }
     }
-    return val;
+    return 0;
 }
 
+// Function to display the current state of the frames
 void display() {
-    int i;
     printf("\n");
-    for (i = 0; i < fsize; i++) {
-        if (frame[i] >= 0) {
+    for (int i = 0; i < fsize; i++) {
+        if (frame[i] != -1) {
             printf("%d\t", frame[i]);
         } else {
             printf("-\t");
@@ -86,22 +101,15 @@ void display() {
     }
 }
 
-int leastused() {
-    int i, min = 0;
-    for (i = 1; i < fsize; i++) {
-        if (arrive[i] < arrive[min]) {
-            min = i;
-        }
-    }
-    return min;
-}
+// Function to find the least recently used page
+int findLRU() {
+    int i, min = recent[0], pos = 0;
 
-int pagelocation(int pageno) {
-    int i;
-    for (i = 0; i < fsize; i++) {
-        if (frame[i] == pageno) {
-            return i;
+    for (i = 1; i < fsize; i++) {
+        if (recent[i] < min) {
+            min = recent[i];
+            pos = i;
         }
     }
-    return -1;  // This case should never happen
+    return pos;
 }
