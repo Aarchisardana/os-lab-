@@ -1,3 +1,6 @@
+ inpiut fsize, ssize, rstring, and check or condition onthem with return 1 
+2  allocate -1 to frame size  intaialyy
+
 #include <stdio.h>
 #include <stdlib.h>
 
