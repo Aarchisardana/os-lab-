@@ -1,5 +1,10 @@
- inpiut fsize, ssize, rstring, and check or condition onthem with return 1 
-2  allocate -1 to frame size  intaialyy
+ inpiut fsize, ssize, rstring, and check or condition on them with return 1 
+2   for lopp  legag allocate -1 to frame size  intaialyy  
+main sae phle 2 function bnegeh oage found and diplay 
+ front =0 
+
+ dipslay mae framex[i]!=1 
+ els espace 
 
 #include <stdio.h>
 #include <stdlib.h>
